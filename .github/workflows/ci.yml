@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Restore
+        run: dotnet restore ConvictionCore.slnx
+
+      - name: Build
+        run: dotnet build ConvictionCore.slnx --configuration Release --no-restore
+
+      - name: Format check
+        run: dotnet format ConvictionCore.slnx --verify-no-changes --no-restore
+
+      - name: Test
+        run: dotnet test ConvictionCore.slnx --configuration Release --no-build --verbosity normal

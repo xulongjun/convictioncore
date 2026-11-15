@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/ConvictionCore.Api/ConvictionCore.Api.csproj" />
+    <Project Path="src/ConvictionCore.Application/ConvictionCore.Application.csproj" />
+    <Project Path="src/ConvictionCore.Domain/ConvictionCore.Domain.csproj" />
+    <Project Path="src/ConvictionCore.Infrastructure/ConvictionCore.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/ConvictionCore.Architecture.Tests/ConvictionCore.Architecture.Tests.csproj" />
+    <Project Path="tests/ConvictionCore.Domain.Tests/ConvictionCore.Domain.Tests.csproj" />
+    <Project Path="tests/ConvictionCore.Integration.Tests/ConvictionCore.Integration.Tests.csproj" />
+  </Folder>
+</Solution>
