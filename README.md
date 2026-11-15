@@ -1,29 +1,53 @@
 # ConvictionCore
 
-Clean rewrite of ConvictionOS with a new architecture.
+Clean rewrite of ConvictionOS. This repository is **code-only** — architecture and product docs live in Cursor Project Context, not here.
 
-This repository is **code-only**. Architecture, product, and design documents live in the Cursor Project Context (`docs/`), not in this git tree.
+Stack: C# / .NET 10 modular monolith (Api, Application, Domain, Infrastructure) + SQL Server + EF Core.
 
-## Status
+## Prerequisites
 
-Scaffold only (TypeScript / Node). PoC implementation waits on open decisions in the architecture doc.
+- .NET SDK matching `global.json` (10.0.x)
+- Docker (for local SQL Server and integration tests)
 
-## Layout
-
-```
-src/
-  domain/       # core concepts & invariants
-  portfolio/    # owners, portfolios, broker accounts
-  trading/      # import, normalize, reconstruct (PoC path)
-  api/          # thin HTTP entry (placeholder)
-  platform/     # config, logging ports
-```
-
-## Local
+## Local SQL Server
 
 ```bash
-npm install
-npm run typecheck
+cp .env.example .env   # edit MSSQL_SA_PASSWORD if you want
+docker compose up -d
 ```
 
-Do not commit real broker exports or account identifiers.
+Set the API connection string (user secrets preferred):
+
+```bash
+dotnet user-secrets set "ConnectionStrings:ConvictionCore" \
+  "Server=localhost,1433;Database=ConvictionCore;User Id=sa;Password=Your_password123;TrustServerCertificate=True;Encrypt=True" \
+  --project src/ConvictionCore.Api
+
+dotnet user-secrets set "DeveloperIdentity:PrincipalId" "local-dev" \
+  --project src/ConvictionCore.Api
+```
+
+Or export `ConnectionStrings__ConvictionCore` / `DeveloperIdentity__PrincipalId` from `.env.example`.
+
+## Migrate (explicit — not on API startup)
+
+```bash
+dotnet ef database update \
+  --project src/ConvictionCore.Infrastructure \
+  --startup-project src/ConvictionCore.Api
+```
+
+Install the tool once if needed: `dotnet tool install --global dotnet-ef`.
+
+## Build / test / run
+
+```bash
+dotnet restore ConvictionCore.slnx
+dotnet build ConvictionCore.slnx
+dotnet test ConvictionCore.slnx
+dotnet run --project src/ConvictionCore.Api
+```
+
+API listens on `http://localhost:5080` (see `launchSettings.json`). Health: `GET /health` or `GET /api/v1/health`.
+
+Do not commit real broker exports, account identifiers, or connection-string secrets.
