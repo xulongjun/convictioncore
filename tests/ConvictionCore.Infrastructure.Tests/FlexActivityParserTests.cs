@@ -133,9 +133,13 @@ public class FlexActivityParserTests
     [Fact]
     public void Unknown_sections_and_detail_levels_are_ignored_with_warnings()
     {
-        var text = FlexFixtures.ReadText(FlexFixtures.Synthetic)
-            .Replace("<Trades>\n", "<Trades>\n<Trade transactionID=\"1\" conid=\"1\" levelOfDetail=\"ORDER\" />\n", StringComparison.Ordinal)
-            .Replace("</FlexStatement>", "<CashTransactions><CashTransaction amount=\"1\" /></CashTransactions>\n</FlexStatement>", StringComparison.Ordinal);
+        var text = FlexFixtures.InsertAfterTradesOpen(
+            FlexFixtures.ReadText(FlexFixtures.Synthetic),
+            "<Trade transactionID=\"1\" conid=\"1\" levelOfDetail=\"ORDER\" />");
+        text = text.Replace(
+            "</FlexStatement>",
+            "<CashTransactions><CashTransaction amount=\"1\" /></CashTransactions>\n</FlexStatement>",
+            StringComparison.Ordinal);
 
         var statement = FlexActivityParser.Parse(FlexFixtures.Bytes(text));
 

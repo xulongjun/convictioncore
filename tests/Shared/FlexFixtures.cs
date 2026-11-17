@@ -23,11 +23,14 @@ public static partial class FlexFixtures
 
     public static byte[] Read(string name) => File.ReadAllBytes(Path.Combine(Root.Value, name));
 
-    public static string ReadText(string name) => File.ReadAllText(Path.Combine(Root.Value, name));
+    public static string ReadText(string name) => NormalizeNewlines(File.ReadAllText(Path.Combine(Root.Value, name)));
 
     public static byte[] Bytes(string xml) => Encoding.UTF8.GetBytes(xml);
 
-    public static string Text(byte[] payload) => Encoding.UTF8.GetString(payload);
+    public static string Text(byte[] payload) => NormalizeNewlines(Encoding.UTF8.GetString(payload));
+
+    /// <summary>Fixture edits key off LF breaks; normalize so checks work with CRLF working copies.</summary>
+    public static string NormalizeNewlines(string text) => text.Replace("\r\n", "\n", StringComparison.Ordinal).Replace('\r', '\n');
 
     /// <summary>Changes one attribute on the Trade[EXECUTION] row with the given transactionID.</summary>
     public static byte[] WithExecutionAttribute(byte[] payload, long transactionId, string attribute, string value)
@@ -86,12 +89,21 @@ public static partial class FlexFixtures
     public static byte[] WithAccountInformationAttributes(byte[] payload, string attributes) =>
         Bytes(Text(payload).Replace("<AccountInformation ", $"<AccountInformation {attributes} ", StringComparison.Ordinal));
 
+    /// <summary>Inserts a row immediately after the <c>&lt;Trades&gt;</c> opener (for test variants).</summary>
+    public static string InsertAfterTradesOpen(string text, string line) =>
+        TradesSectionOpen().Replace(NormalizeNewlines(text), $"<Trades>\n{line}\n", 1);
+
     /// <summary>Puts a CLOSED_LOT row first in Trades, so it has no parent Trade.</summary>
     public static byte[] WithOrphanLot(byte[] payload)
     {
         var text = Text(payload);
         var lot = text.Split('\n').First(line => line.StartsWith("<Lot ", StringComparison.Ordinal));
-        return Bytes(text.Replace("<Trades>\n", $"<Trades>\n{lot}\n", StringComparison.Ordinal));
+        if (!TradesSectionOpen().IsMatch(text))
+        {
+            throw new InvalidOperationException("Trades section opener not found in fixture.");
+        }
+
+        return Bytes(TradesSectionOpen().Replace(text, $"<Trades>\n{lot}\n", 1));
     }
 
     private static string FindRoot()
@@ -109,4 +121,7 @@ public static partial class FlexFixtures
 
     [GeneratedRegex("fromDate=\"\\d{8}\" toDate=\"\\d{8}\"")]
     private static partial Regex StatementWindow();
+
+    [GeneratedRegex("<Trades>\\r?\\n")]
+    private static partial Regex TradesSectionOpen();
 }
