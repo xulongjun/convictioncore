@@ -8,6 +8,7 @@
   <Folder Name="/tests/">
     <Project Path="tests/ConvictionCore.Architecture.Tests/ConvictionCore.Architecture.Tests.csproj" />
     <Project Path="tests/ConvictionCore.Domain.Tests/ConvictionCore.Domain.Tests.csproj" />
+    <Project Path="tests/ConvictionCore.Infrastructure.Tests/ConvictionCore.Infrastructure.Tests.csproj" />
     <Project Path="tests/ConvictionCore.Integration.Tests/ConvictionCore.Integration.Tests.csproj" />
   </Folder>
 </Solution>
