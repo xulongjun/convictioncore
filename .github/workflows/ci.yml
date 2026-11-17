@@ -6,16 +6,24 @@ on:
   pull_request:
 
 jobs:
+  # The job id is the required status check name in the main branch ruleset; do not rename it.
   build-test:
+    name: build-test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Fixture hygiene
+        run: .github/scripts/check-fixture-hygiene.sh
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           global-json-file: global.json
+
+      - name: Restore tools
+        run: dotnet tool restore
 
       - name: Restore
         run: dotnet restore ConvictionCore.slnx
@@ -25,6 +33,14 @@ jobs:
 
       - name: Format check
         run: dotnet format ConvictionCore.slnx --verify-no-changes --no-restore
+
+      - name: Pending model changes
+        run: >-
+          dotnet ef migrations has-pending-model-changes
+          --project src/ConvictionCore.Infrastructure
+          --startup-project src/ConvictionCore.Api
+          --configuration Release
+          --no-build
 
       - name: Test
         run: dotnet test ConvictionCore.slnx --configuration Release --no-build --verbosity normal

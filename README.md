@@ -37,7 +37,7 @@ dotnet ef database update \
   --startup-project src/ConvictionCore.Api
 ```
 
-Install the tool once if needed: `dotnet tool install --global dotnet-ef`.
+Restore the pinned `dotnet-ef` tool first: `dotnet tool restore`.
 
 ## Build / test / run
 
