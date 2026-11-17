@@ -30,19 +30,19 @@ public class FlexBuildingBlockTests
     }
 
     [Theory]
-    [InlineData("1019", FlexErrorHandling.Poll)]
-    [InlineData("1001", FlexErrorHandling.Poll)]
-    [InlineData("1009", FlexErrorHandling.Poll)]
-    [InlineData("1021", FlexErrorHandling.Poll)]
-    [InlineData("1018", FlexErrorHandling.RateLimited)]
-    [InlineData("1017", FlexErrorHandling.RenewReference)]
-    [InlineData("1003", FlexErrorHandling.Fatal)]
-    [InlineData("1012", FlexErrorHandling.Fatal)]
-    [InlineData("1015", FlexErrorHandling.Fatal)]
-    [InlineData("1025", FlexErrorHandling.Fatal)]
-    [InlineData("9999", FlexErrorHandling.Fatal)]
-    public void Error_codes_are_classified(string code, FlexErrorHandling expected) =>
-        Assert.Equal(expected, FlexErrorCodes.Classify(code));
+    [InlineData("1019", "Poll")]
+    [InlineData("1001", "Poll")]
+    [InlineData("1009", "Poll")]
+    [InlineData("1021", "Poll")]
+    [InlineData("1018", "RateLimited")]
+    [InlineData("1017", "RenewReference")]
+    [InlineData("1003", "Fatal")]
+    [InlineData("1012", "Fatal")]
+    [InlineData("1015", "Fatal")]
+    [InlineData("1025", "Fatal")]
+    [InlineData("9999", "Fatal")]
+    public void Error_codes_are_classified(string code, string expected) =>
+        Assert.Equal(expected, FlexErrorCodes.Classify(code).ToString());
 
     [Theory]
     [InlineData("https://host/SendRequest?t=abc123&q=1&v=3", "https://host/SendRequest?t=***&q=1&v=3")]

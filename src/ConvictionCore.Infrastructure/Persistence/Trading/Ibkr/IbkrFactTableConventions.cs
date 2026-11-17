@@ -58,17 +58,21 @@ internal static class IbkrFactTableConventions
             .HasForeignKey(row => row.LastChangedRawStatementId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        foreach (var property in builder.Metadata.GetProperties())
+        foreach (var property in builder.Metadata.GetProperties().ToList())
         {
             property.SetColumnName(ToSnakeCase(property.Name));
-            var clrType = Nullable.GetUnderlyingType(property.ClrType) ?? property.ClrType;
-            if (clrType == typeof(decimal))
+            if (property.ClrType == typeof(decimal?))
             {
-                var isMoney = MoneyProperties.Contains(property.Name);
-                property.SetPrecision(isMoney ? FinancialPrecision.MoneyPrecision : FinancialPrecision.QuantityPrecision);
-                property.SetScale(isMoney ? FinancialPrecision.MoneyScale : FinancialPrecision.QuantityScale);
+                var decimalProperty = builder.Property<decimal?>(property.Name);
+                _ = MoneyProperties.Contains(property.Name)
+                    ? decimalProperty.HasMoneyPrecision()
+                    : decimalProperty.HasQuantityPrecision();
             }
-            else if (clrType == typeof(string) && property.Name != nameof(IbkrFactRow.RowHash))
+            else if (property.ClrType == typeof(decimal))
+            {
+                throw new InvalidOperationException($"{typeof(T).Name}.{property.Name}: Flex amounts may be empty; use decimal?.");
+            }
+            else if (property.ClrType == typeof(string) && property.Name != nameof(IbkrFactRow.RowHash))
             {
                 property.SetMaxLength(DescriptionProperties.Contains(property.Name) ? DescriptionLength : DefaultStringLength);
             }

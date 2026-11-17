@@ -50,4 +50,41 @@ dotnet run --project src/ConvictionCore.Api
 
 API listens on `http://localhost:5080` (see `launchSettings.json`). Health: `GET /health` or `GET /api/v1/health`.
 
+## IBKR Flex sync (local, Development only)
+
+Query ids live in `appsettings.json` (`Ibkr:Queries`). The Flex token is a secret and only goes into user-secrets:
+
+```bash
+dotnet user-secrets set "Ibkr:FlexToken" "<token>" --project src/ConvictionCore.Api
+```
+
+Register the IBKR account once (the account id stays in your local DB, never in the repo):
+
+```bash
+docker exec -i convictioncore-sql /opt/mssql-tools18/bin/sqlcmd -C -I -S localhost -U sa -P "$MSSQL_SA_PASSWORD" \
+  -d ConvictionCore -v IbkrAccountId="<your IBKR account id>" <<'SQL'
+DECLARE @owner uniqueidentifier = NEWID(), @portfolio uniqueidentifier = NEWID(), @now datetimeoffset = SYSUTCDATETIME();
+INSERT portfolio.owner (owner_id, display_name, owner_kind, version, created_at, updated_at)
+VALUES (@owner, N'Company', 'Company', 0, @now, @now);
+INSERT portfolio.portfolio (portfolio_id, owner_id, name, reporting_currency, version, created_at, updated_at)
+VALUES (@portfolio, @owner, N'Company', 'USD', 0, @now, @now);
+INSERT portfolio.broker_account (broker_account_id, portfolio_id, owner_id, broker_id, display_name, external_reference,
+  masked_reference, base_currency, status, version, created_at, updated_at)
+VALUES (NEWID(), @portfolio, @owner, '22222222-2222-4222-8222-222222222222', N'IBKR company', '$(IbkrAccountId)',
+  CONCAT(LEFT('$(IbkrAccountId)', 2), '****'), 'USD', 'Active', 0, @now, @now);
+SQL
+```
+
+Run the API (`dotnet run --project src/ConvictionCore.Api`) and trigger a sync. Both dates are optional and default to
+`Ibkr:HistoryStartDate` → today. The response carries the batch id and inserted / corrected / unchanged counts per table:
+
+```bash
+curl -s -X POST http://localhost:5080/api/ibkr/flex/sync \
+  -H 'Content-Type: application/json' \
+  -d '{ "fromDate": "2026-03-01", "toDate": "2026-11-17" }'
+```
+
+Test fixtures are anonymized with `tools/ibkr-fixtures/anonymize_flex.py`; its money/price scale factor is passed on the
+command line and is never committed.
+
 Do not commit real broker exports, account identifiers, or connection-string secrets.
