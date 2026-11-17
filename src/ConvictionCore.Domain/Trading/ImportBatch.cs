@@ -2,8 +2,14 @@ using ConvictionCore.Domain.SharedKernel;
 
 namespace ConvictionCore.Domain.Trading;
 
+/// <summary>
+/// One sync run against a broker source. A run may cover several fetch windows;
+/// the raw payloads and their hashes live on the raw statement rows.
+/// </summary>
 public sealed class ImportBatch
 {
+    public const int ErrorMessageMaxLength = 2000;
+
     private ImportBatch()
     {
     }
@@ -12,11 +18,35 @@ public sealed class ImportBatch
 
     public BrokerAccountId BrokerAccountId { get; private set; }
 
-    public string ContentHash { get; private set; } = string.Empty;
+    public ImportSource Source { get; private set; }
+
+    public ImportTrigger Trigger { get; private set; }
+
+    public DateOnly RequestedFrom { get; private set; }
+
+    public DateOnly RequestedTo { get; private set; }
+
+    public ImportBatchStatus Status { get; private set; }
 
     public string ParserVersion { get; private set; } = string.Empty;
 
-    public ImportBatchStatus Status { get; private set; }
+    public int InsertedCount { get; private set; }
+
+    public int CorrectedCount { get; private set; }
+
+    public int UnchangedCount { get; private set; }
+
+    public string? CountsJson { get; private set; }
+
+    public string? WarningsJson { get; private set; }
+
+    public string? ErrorCode { get; private set; }
+
+    public string? ErrorMessage { get; private set; }
+
+    public DateTimeOffset StartedAt { get; private set; }
+
+    public DateTimeOffset? FinishedAt { get; private set; }
 
     public int Version { get; private set; }
 
@@ -24,10 +54,13 @@ public sealed class ImportBatch
 
     public DateTimeOffset UpdatedAt { get; private set; }
 
-    public static ImportBatch Accept(
+    public static ImportBatch Start(
         ImportBatchId id,
         BrokerAccountId brokerAccountId,
-        string contentHash,
+        ImportSource source,
+        ImportTrigger trigger,
+        DateOnly requestedFrom,
+        DateOnly requestedTo,
         string parserVersion,
         DateTimeOffset now)
     {
@@ -41,9 +74,9 @@ public sealed class ImportBatch
             throw new InvalidOperationException("Broker account id is required.");
         }
 
-        if (string.IsNullOrWhiteSpace(contentHash))
+        if (requestedFrom > requestedTo)
         {
-            throw new InvalidOperationException("Content hash is required.");
+            throw new InvalidOperationException("Requested window must not end before it starts.");
         }
 
         if (string.IsNullOrWhiteSpace(parserVersion))
@@ -55,12 +88,84 @@ public sealed class ImportBatch
         {
             Id = id,
             BrokerAccountId = brokerAccountId,
-            ContentHash = contentHash.Trim(),
+            Source = source,
+            Trigger = trigger,
+            RequestedFrom = requestedFrom,
+            RequestedTo = requestedTo,
+            Status = ImportBatchStatus.Running,
             ParserVersion = parserVersion.Trim(),
-            Status = ImportBatchStatus.Accepted,
+            StartedAt = now,
             Version = 0,
             CreatedAt = now,
             UpdatedAt = now
         };
+    }
+
+    public void Succeed(
+        int inserted,
+        int corrected,
+        int unchanged,
+        string? countsJson,
+        string? warningsJson,
+        DateTimeOffset now)
+    {
+        RequireRunning();
+        SetCounts(inserted, corrected, unchanged, countsJson, warningsJson);
+        Status = ImportBatchStatus.Succeeded;
+        Finish(now);
+    }
+
+    public void Fail(
+        string errorCode,
+        string errorMessage,
+        int inserted,
+        int corrected,
+        int unchanged,
+        string? countsJson,
+        string? warningsJson,
+        DateTimeOffset now)
+    {
+        RequireRunning();
+        if (string.IsNullOrWhiteSpace(errorCode))
+        {
+            throw new InvalidOperationException("Error code is required.");
+        }
+
+        SetCounts(inserted, corrected, unchanged, countsJson, warningsJson);
+        ErrorCode = errorCode.Trim();
+        ErrorMessage = errorMessage.Length > ErrorMessageMaxLength
+            ? errorMessage[..ErrorMessageMaxLength]
+            : errorMessage;
+        Status = ImportBatchStatus.Failed;
+        Finish(now);
+    }
+
+    private void SetCounts(int inserted, int corrected, int unchanged, string? countsJson, string? warningsJson)
+    {
+        if (inserted < 0 || corrected < 0 || unchanged < 0)
+        {
+            throw new InvalidOperationException("Counts must not be negative.");
+        }
+
+        InsertedCount = inserted;
+        CorrectedCount = corrected;
+        UnchangedCount = unchanged;
+        CountsJson = countsJson;
+        WarningsJson = warningsJson;
+    }
+
+    private void RequireRunning()
+    {
+        if (Status != ImportBatchStatus.Running)
+        {
+            throw new InvalidOperationException($"Import batch is already {Status}.");
+        }
+    }
+
+    private void Finish(DateTimeOffset now)
+    {
+        FinishedAt = now;
+        UpdatedAt = now;
+        Version++;
     }
 }

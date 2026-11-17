@@ -12,12 +12,15 @@
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.13" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.13" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.13" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.13" />
     <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.13" />
   </ItemGroup>
 
   <ItemGroup>
     <InternalsVisibleTo Include="ConvictionCore.Architecture.Tests" />
+    <InternalsVisibleTo Include="ConvictionCore.Infrastructure.Tests" />
+    <InternalsVisibleTo Include="ConvictionCore.Integration.Tests" />
   </ItemGroup>
 
 </Project>
