@@ -2,7 +2,7 @@ namespace ConvictionCore.Domain.Trading;
 
 public enum ImportBatchStatus
 {
-    Accepted = 0,
-    Normalized = 1,
+    Running = 0,
+    Succeeded = 1,
     Failed = 2
 }

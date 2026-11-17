@@ -1,3 +1,5 @@
+using ConvictionCore.Api.Ibkr;
+using ConvictionCore.Infrastructure.Ibkr;
 using ConvictionCore.Infrastructure.Identity;
 using ConvictionCore.Infrastructure.Persistence;
 
@@ -23,6 +25,7 @@ builder.Services.AddOpenApi();
 builder.Services.AddControllers();
 builder.Services.AddPersistence(builder.Configuration);
 builder.Services.AddIdentityModule();
+builder.Services.AddIbkrFlex(builder.Configuration);
 
 var app = builder.Build();
 if (!app.Environment.IsDevelopment())
@@ -33,6 +36,11 @@ if (!app.Environment.IsDevelopment())
 app.MapOpenApi();
 app.MapControllers();
 app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
+if (app.Environment.IsDevelopment())
+{
+    app.MapIbkrFlexEndpoints();
+}
+
 app.Run();
 
 public partial class Program;

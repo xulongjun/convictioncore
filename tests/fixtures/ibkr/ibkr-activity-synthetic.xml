@@ -1,0 +1,22 @@
+<FlexQueryResponse queryName="synthetic_activity" type="AF">
+<FlexStatements count="1">
+<FlexStatement accountId="U0000001" fromDate="20260301" toDate="20261116" period="" whenGenerated="20261117;120000">
+<AccountInformation accountId="U0000001" acctAlias="" model="" currency="USD" accountType="Individual" customerType="Corporate" dateOpened="20260302" dateFunded="20260303" dateClosed="" />
+<OpenPositions>
+</OpenPositions>
+<Trades>
+<Trade accountId="U0000001" acctAlias="" model="" currency="USD" fxRateToBase="1" assetCategory="STK" subCategory="COMMON" symbol="XYZ" description="SYNTHETIC XYZ CORP" conid="900000001" underlyingConid="" underlyingSymbol="XYZ" tradeID="900000101" multiplier="1" relatedTradeID="" strike="" reportDate="20260309" expiry="" dateTime="20260309;093000" putCall="" tradeDate="20260309" settleDateTarget="20260310" transactionType="ExchTrade" exchange="NYSE" quantity="10" tradePrice="100" tradeMoney="1000" proceeds="-1000" taxes="0" ibCommission="-1" ibCommissionCurrency="USD" netCash="-1001" closePrice="100" openCloseIndicator="O" notes="" cost="1001" fifoPnlRealized="0" mtmPnl="0" origTradePrice="0" origTradeDate="" origTradeID="" origOrderID="0" origTransactionID="0" buySell="BUY" ibOrderID="900000201" transactionID="900000301" ibExecID="0000aaaa.0000bbbb.01.01" relatedTransactionID="" orderTime="20260309;093000" openDateTime="" holdingPeriodDateTime="" levelOfDetail="EXECUTION" />
+<Trade accountId="U0000001" acctAlias="" model="" currency="USD" fxRateToBase="1" assetCategory="STK" subCategory="COMMON" symbol="XYZ" description="SYNTHETIC XYZ CORP" conid="900000001" underlyingConid="" underlyingSymbol="XYZ" tradeID="900000102" multiplier="1" relatedTradeID="" strike="" reportDate="20261113" expiry="" dateTime="20261113;100000" putCall="" tradeDate="20261113" settleDateTarget="20261114" transactionType="ExchTrade" exchange="NYSE" quantity="-10" tradePrice="120" tradeMoney="-1200" proceeds="1200" taxes="0" ibCommission="-1" ibCommissionCurrency="USD" netCash="1199" closePrice="120" openCloseIndicator="C" notes="" cost="-1001" fifoPnlRealized="198" mtmPnl="0" origTradePrice="0" origTradeDate="" origTradeID="" origOrderID="0" origTransactionID="0" buySell="SELL" ibOrderID="900000202" transactionID="900000302" ibExecID="0000aaaa.0000bbbb.02.01" relatedTransactionID="" orderTime="20261113;100000" openDateTime="" holdingPeriodDateTime="" levelOfDetail="EXECUTION" />
+<Lot accountId="U0000001" acctAlias="" model="" currency="USD" fxRateToBase="1" assetCategory="STK" subCategory="COMMON" symbol="XYZ" description="SYNTHETIC XYZ CORP" conid="900000001" multiplier="1" reportDate="20261113" dateTime="20261113;100000" tradeDate="20261113" quantity="10" tradePrice="100" cost="1001" fifoPnlRealized="198" openCloseIndicator="C" notes="" buySell="SELL" transactionID="900000301" openDateTime="20260309;093000" holdingPeriodDateTime="20260309;093000" levelOfDetail="CLOSED_LOT" />
+</Trades>
+<OptionEAE>
+</OptionEAE>
+<CorporateActions>
+<CorporateAction accountId="U0000001" acctAlias="" model="" currency="USD" fxRateToBase="1" assetCategory="STK" subCategory="COMMON" symbol="XYZ" description="SYNTHETIC XYZ CORP" conid="900000001" reportDate="20260601" dateTime="20260529;202500" actionDescription="XYZ(US0000000001) SPLIT 10 FOR 1 (XYZ, SYNTHETIC XYZ CORP, US0000000001)" amount="0" proceeds="0" value="0" quantity="90" fifoPnlRealized="0" mtmPnl="0" code="" type="FS" transactionID="900000401" actionID="900000501" levelOfDetail="DETAIL" />
+</CorporateActions>
+<SecuritiesInfo>
+<SecurityInfo currency="USD" assetCategory="STK" subCategory="COMMON" symbol="XYZ" description="SYNTHETIC XYZ CORP" conid="900000001" securityID="US0000000001" securityIDType="ISIN" cusip="000000000" isin="US0000000001" figi="BBG000000001" listingExchange="NYSE" underlyingConid="" underlyingSymbol="XYZ" multiplier="1" strike="" expiry="" putCall="" underlyingCategory="" settlementPolicyMethod="" />
+</SecuritiesInfo>
+</FlexStatement>
+</FlexStatements>
+</FlexQueryResponse>
