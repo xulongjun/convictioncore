@@ -16,12 +16,26 @@ indent_size = 2
 
 [*.cs]
 dotnet_sort_system_directives_first = true
-dotnet_style_qualification_for_field = false:suggestion
-dotnet_style_qualification_for_property = false:suggestion
-dotnet_style_qualification_for_method = false:suggestion
-dotnet_style_qualification_for_event = false:suggestion
+dotnet_style_qualification_for_field = false:warning
+dotnet_style_qualification_for_property = false:warning
+dotnet_style_qualification_for_method = false:warning
+dotnet_style_qualification_for_event = false:warning
 csharp_style_var_for_built_in_types = false:suggestion
 csharp_style_var_when_type_is_apparent = true:suggestion
 csharp_style_var_elsewhere = false:suggestion
 csharp_new_line_before_open_brace = all
-csharp_prefer_braces = true:suggestion
+csharp_prefer_braces = true:warning
+csharp_style_namespace_declarations = file_scoped:warning
+
+# Raised to warning so build (EnforceCodeStyleInBuild + TreatWarningsAsErrors) and dotnet format enforce them.
+# IDE0003/IDE0009: this. qualification; IDE0011: braces; IDE0161: file-scoped namespaces.
+dotnet_diagnostic.IDE0003.severity = warning
+dotnet_diagnostic.IDE0009.severity = warning
+dotnet_diagnostic.IDE0011.severity = warning
+dotnet_diagnostic.IDE0161.severity = warning
+# IDE0005: unused usings (needs GenerateDocumentationFile in the build to be reported).
+dotnet_diagnostic.IDE0005.severity = warning
+
+[**/Migrations/*.cs]
+# EF Core generates block-scoped namespaces; never hand-edit migrations to satisfy style rules.
+generated_code = true
